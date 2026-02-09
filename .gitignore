@@ -1,0 +1,24 @@
+# Environment and secrets
+.env
+.env.local
+*.env
+*secret*.json
+*secret*.txt
+*key*.json
+credentials.json
+service-account*.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+
+# Logs
+*.log

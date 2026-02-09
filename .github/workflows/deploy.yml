@@ -1,0 +1,62 @@
+# Deploy Descope BigQuery Sync to Google Cloud Functions
+# Trigger: push to main (or workflow_dispatch)
+# Deploys from repo root (main.py at root)
+
+name: Deploy Descope BigQuery Sync
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: 'global-cloud-runtime'
+  REGION: 'us-central1'
+  FUNCTION_NAME: 'descope-bigquery-sync'
+  SERVICE_ACCOUNT: 'descope-sync-sa@global-cloud-runtime.iam.gserviceaccount.com'
+
+jobs:
+  deploy:
+    name: Deploy to Cloud Functions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Deploy Cloud Function
+        run: |
+          gcloud functions deploy ${{ env.FUNCTION_NAME }} \
+            --gen2 \
+            --runtime=python311 \
+            --region=${{ env.REGION }} \
+            --source=. \
+            --entry-point=descope_sync \
+            --trigger-http \
+            --no-allow-unauthenticated \
+            --timeout=540s \
+            --memory=512MB \
+            --service-account=${{ env.SERVICE_ACCOUNT }} \
+            --set-env-vars="GCP_PROJECT=${{ env.PROJECT_ID }}" \
+            --project=${{ env.PROJECT_ID }}
+
+      - name: Get function URL
+        id: url
+        run: |
+          url=$(gcloud functions describe ${{ env.FUNCTION_NAME }} --gen2 --region=${{ env.REGION }} --project=${{ env.PROJECT_ID }} --format='value(serviceConfig.uri)')
+          echo "url=${url}" >> $GITHUB_OUTPUT
+
+      - name: Update Cloud Scheduler
+        run: |
+          gcloud scheduler jobs update http descope-sync-daily \
+            --location=${{ env.REGION }} \
+            --uri="${{ steps.url.outputs.url }}" \
+            --project=${{ env.PROJECT_ID }} || true
