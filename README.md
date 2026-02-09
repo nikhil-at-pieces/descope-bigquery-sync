@@ -1,6 +1,45 @@
 # Descope → BigQuery Daily Sync Cloud Function
 
-This Cloud Function automatically syncs user data from Descope to BigQuery daily.
+This repo contains the **production** Descope → BigQuery sync service. It automatically syncs user data from Descope to BigQuery daily.
+
+**Repository:** [github.com/nikhil-at-pieces/descope-bigquery-sync](https://github.com/nikhil-at-pieces/descope-bigquery-sync)  
+**Handoff / operations:** see [HANDOFF.md](HANDOFF.md) for the authoritative production checklist and runbooks.
+
+---
+
+## 1. What is in production (authoritative)
+
+| Item | Details |
+|------|---------|
+| **Service type** | Google Cloud Function (Gen 2) |
+| **Function name** | `descope-bigquery-sync` |
+| **Trigger** | HTTP (invoked by Cloud Scheduler only) |
+| **GCP project** | `global-cloud-runtime` |
+| **Region** | `us-central1` |
+| **Function URL** | https://us-central1-global-cloud-runtime.cloudfunctions.net/descope-bigquery-sync |
+| **Schedule** | Daily at **02:00 AM UTC** |
+| **Scheduler job** | `descope-sync-daily` |
+
+**What the service does**
+
+- Syncs user records from Descope (identity provider) into BigQuery.
+- Uses incremental fetching (`fromModifiedTime`) to pull only new or updated users.
+- Performs upserts using a BigQuery MERGE on `user_id` (no duplicates).
+- Optional enrichments (in code): login location from Descope audit logs; IP geolocation (city, region, country).
+- Credentials are **not** in code; they are read from **Google Secret Manager** (`descope-project-id`, `descope-management-key`).
+
+**Where the data lands**
+
+- **Dataset:** `global-cloud-runtime.descope_data_v2`
+- **Table:** `users`  
+  Used downstream for GA4 attribution, `users_clean` view, and reporting.
+
+**Deployment**
+
+- In this repo: **source code is at repo root** (`main.py`). Entry point: `descope_sync`.
+- Deploy: run `./setup_secrets.sh` (once), then `./deploy_secure.sh`, or use the optional GitHub Actions workflow (`.github/workflows/deploy.yml`) if WIF is configured.
+
+---
 
 ## Features
 
