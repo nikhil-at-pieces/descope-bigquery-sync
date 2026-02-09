@@ -58,17 +58,19 @@ This table is used downstream for:
 
 ---
 
-## 2. Other pipelines (not in this repo)
+## 2. Other pipelines (in this repo)
 
-The following run in the **company data-platform repo** (not here); they are run manually unless otherwise automated:
+The following live in this repo under **`pipelines/`**. They are run manually unless you automate them (cron, Cloud Scheduler, etc.):
 
-| Component | Location (company repo) | Purpose |
-|-----------|--------------------------|---------|
-| Social ingestion | `comb.py` | Twitter, YouTube, LinkedIn, TikTok → BigQuery (Apache Beam) |
-| LinkedIn posts | `linkedin_pipeline.py` | LinkedIn company posts → BigQuery |
-| GA4 attribution | `enrich_attribution_clean.py` | Adds GA4 first-touch attribution to users |
-| IP geolocation | `enrich_ip_locations_fast.py` | Maps IP → city/region/country |
-| YouTube Analytics | `youtube_analytics_to_bq.py` | YouTube Analytics → BigQuery |
+| Component | Location (this repo) | Purpose |
+|-----------|----------------------|---------|
+| Social ingestion | `pipelines/comb.py` | Twitter, YouTube, LinkedIn, TikTok → BigQuery (Apache Beam) |
+| LinkedIn posts | `pipelines/linkedin_pipeline.py` | LinkedIn company posts → BigQuery |
+| GA4 attribution | `pipelines/enrich_attribution_clean.py` | Adds GA4 first-touch attribution to users |
+| IP geolocation | `pipelines/enrich_ip_locations_fast.py` | Maps IP → city/region/country |
+| YouTube Analytics | `pipelines/youtube_analytics_to_bq.py` | YouTube Analytics → BigQuery |
+
+See [pipelines/README.md](pipelines/README.md) for setup and env vars. All config is via environment (no credentials in code).
 
 ---
 

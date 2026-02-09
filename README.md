@@ -39,6 +39,9 @@ This repo contains the **production** Descope → BigQuery sync service. It auto
 - In this repo: **source code is at repo root** (`main.py`). Entry point: `descope_sync`.
 - Deploy: run `./setup_secrets.sh` (once), then `./deploy_secure.sh`, or use the optional GitHub Actions workflow (`.github/workflows/deploy.yml`) if WIF is configured.
 
+**Other pipelines (same repo)**  
+Scripts for social ingestion, LinkedIn, GA4 attribution, IP geolocation, and YouTube Analytics live in **[pipelines/](pipelines/)**. They are not deployed as a service; run them manually or on your own schedule. See [pipelines/README.md](pipelines/README.md).
+
 ---
 
 ## Features

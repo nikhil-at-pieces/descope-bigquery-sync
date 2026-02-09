@@ -1,0 +1,15 @@
+# Core
+apache-beam[gcp]>=2.50.0
+google-cloud-bigquery>=3.0.0
+google-api-python-client>=2.0.0
+requests>=2.28.0
+python-dotenv>=1.0.0
+
+# YouTube Analytics (OAuth)
+google-auth>=2.0.0
+google-auth-oauthlib>=1.0.0
+google-auth-httplib2>=0.1.0
+
+# Optional (for comb.py TikTok)
+TikTokApi>=6.0.0
+nest_asyncio>=1.5.0
